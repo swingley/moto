@@ -1,0 +1,40 @@
+{ 
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -119.666,
+            39.8056
+          ],
+          [
+            -119.666,
+            39.8055
+          ],
+          [
+            -119.6656,
+            39.8055
+          ],
+          [
+            -119.6605,
+            39.8056
+          ],
+          [
+            -119.6534,
+            39.8056
+          ],
+          [
+            -119.6315,
+            39.8059
+          ]
+        ]
+      },
+      "properties": {
+        "name": "Whiskey Springs Road to BLM Palomino Valley Fire Station",
+        "id": 0
+      }
+    }
+  ]
+}
