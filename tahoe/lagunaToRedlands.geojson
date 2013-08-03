@@ -1,4 +1,4 @@
-var lagunaToRedlands = { 
+{ 
   "type": "FeatureCollection",
   "features": [
     { "type": "Feature",
@@ -1281,4 +1281,4 @@ var lagunaToRedlands = {
       }
     },
   ]
-};
+}
