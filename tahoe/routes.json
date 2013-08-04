@@ -24,7 +24,7 @@
       "13-sonora-pass.geojson",
       "14-sonora-junction-to-gardnerville-nv.geojson",
       "15-gardnerville-nv-to-kingsbury-grade.geojson",
-      "16-kingsbury-grade-to-stateline-nv.geojson",
+      "16-kingsbury-grade-to-stateline-nv.geojson"
     ],
     "three": [
       "17-stateline-nv-to-emerald-bay.geojson",
@@ -50,6 +50,6 @@
       "30-glen-helen-to-kramer-junction.geojson",
       "26-glen-helen-to-corona.geojson",
       "27-laguna-beach-to-corona.geojson"
-    ],
+    ]
   }
 }
