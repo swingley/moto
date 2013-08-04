@@ -1,16 +1,55 @@
 {
-  tahoe: {
-    one: [
-      "02-redlands-to-kramer-junction.geojson"
+  "tahoe": {
+    "zero": [
+      "27-laguna-beach-to-corona.geojson",
+      "28-corona-to-redlands.geojson"
     ],
-    two: [
-
+    "one": [
+      "29-redlands-glen-helen.geojson",
+      "30-glen-helen-to-kramer-junction.geojson",
+      "03-kramer-junction-to-olancha.geojson",
+      "04-olancha-to-big-pine.geojson",
+      "05-big-pine-to-mammoth.geojson",
+      "06-mammoth.geojson",
+      "07-mammoth-scenic-loop.geojson",
+      "08-395-around-mammoth-scenic-loop.geojson"
     ],
-    three: [
-
+    "two": [
+      "06-mammoth.geojson",
+      "08-395-around-mammoth-scenic-loop.geojson",
+      "09-395-to-tioga-pass.geojson",
+      "10-tioga-pass-to-yosemite.geojson",
+      "11-yosemite.geojson",
+      "12-yosemite-to-jamestown.geojson",
+      "13-sonora-pass.geojson",
+      "14-sonora-junction-to-gardnerville-nv.geojson",
+      "15-gardnerville-nv-to-kingsbury-grade.geojson",
+      "16-kingsbury-grade-to-stateline-nv.geojson",
     ],
-    four: [
-
+    "three": [
+      "17-stateline-nv-to-emerald-bay.geojson",
+      "18-emerald-bay-to-kings-beach.geojson",
+      "19-kings-beach-to-sierraville-ca.geojson",
+      "20-sierraville-ca-to-reno.geojson",
+      "21-reno-to-whiskey-springs-road.geojson",
+      "22-whiskey-springs-road-to-blm-palomino-valley-fire-station.geojson",
+      "23-whiskey-springs-road-to-pyramid-lake.geojson",
+      "24-reno-to-kingsbury-grade.geojson",
+      "16-kingsbury-grade-to-stateline-nv.geojson"
+    ],
+    "four": [
+      "16-kingsbury-grade-to-stateline-nv.geojson",
+      "15-gardnerville-nv-to-kingsbury-grade.geojson",
+      "14-sonora-junction-to-gardnerville-nv.geojson",
+      "25-395-sonora-pass-to-tioga-pass.geojson",
+      "09-395-to-tioga-pass.geojson",
+      "08-395-around-mammoth-scenic-loop.geojson",
+      "05-big-pine-to-mammoth.geojson",
+      "04-olancha-to-big-pine.geojson",
+      "03-kramer-junction-to-olancha.geojson",
+      "30-glen-helen-to-kramer-junction.geojson",
+      "26-glen-helen-to-corona.geojson",
+      "27-laguna-beach-to-corona.geojson"
     ],
   }
 }
