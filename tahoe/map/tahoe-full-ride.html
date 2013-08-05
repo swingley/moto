@@ -17,7 +17,7 @@
       var map, selected, totalUniqueMileage = 0;
 
       // create a map, add a basemap
-      map = L.map("map").setView([36.91476, -118.37769], 6);
+      map = L.map("map", { maxZoom: 13 }).setView([36.91476, -118.37769], 6);
       L.esri.basemapLayer("Oceans").addTo(map);
 
       // get routes
