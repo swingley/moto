@@ -1109,6 +1109,7 @@
       },
       "properties": {
         "name": "Corona to Redlands",
+        "distance": 25.0,
         "id": 0
       }
     }

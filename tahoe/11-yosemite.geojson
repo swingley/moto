@@ -1353,6 +1353,7 @@
       },
       "properties": {
         "name": "Yosemite",
+        "distance": 16.5,
         "id": 0
       }
     }

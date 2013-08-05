@@ -1205,6 +1205,7 @@
       },
       "properties": {
         "name": "Sonora Pass",
+        "distance": 80.2,
         "id": 0
       }
     }
