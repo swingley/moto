@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>So Cal to Tahoe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../lib/leaflet/leaflet.css">
+    <link rel="stylesheet" href="css/demo.css">
+    <style>
+      #controls {
+        background: #fff;
+        box-sizing: border-box;
+        box-shadow: 0 1px 7px rgba(0,0,0,0.65);
+        border-radius: 3px;
+        height: auto;
+        margin: 10px;
+        padding: 1em;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 15em;
+        z-index: 5;
+      }
+    </style>
+    <!--[if lte IE 8]><link rel="stylesheet" href="leaflet/leaflet.ie.css" /><![endif]-->
+    <script src="../lib/leaflet/leaflet-src.js"></script>
+    <script src="../lib/esri-leaflet.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="controls">
+      <span id="day-label">Select Day:</span>
+      <select id="day">
+        <option value="all" selected=true>All</option>
+        <option value="zero">July 27, 2013</option>
+        <option value="one">July 28, 2013</option>
+        <option value="two">July 29, 2013</option>
+        <option value="three">July 30, 2013</option>
+        <option value="four">July 31, 2013</option>
+      </select>
+
+    <script>
+      // globals for map and selected feature
+      var map, selected, totalUniqueMileage = 0;
+
+      // keep track of routes by day once they're retrieved
+      var days = {}, segments = {}; 
+
+      // create a map, add a basemap
+      map = L.map("map", { maxZoom: 13 }).setView([36.91476, -118.37769], 6);
+      L.esri.basemapLayer("Oceans").addTo(map);
+
+      // get routes
+      $.ajax("../routes.json").then(showAll);
+
+      // event listener to show routes ridden each day
+      $("#day").change(showDay);
+
+      function showAll(routes) {
+        days = routes.tahoe;
+        // find unique segments so each line is only added once
+        var uniques = [];
+        for ( day in routes.tahoe ) {
+          $.each(routes.tahoe[day], function(idx, segment) {
+            if ( $.inArray(segment, uniques) === -1 ) {
+              uniques.push(segment);
+            }
+          });
+        }
+        // console.log("uniques", uniques);
+        days.all = uniques;
+        // get and add each segment to the map
+        $.each(uniques, function(idx, segment) {
+          $.ajax("../" + segment).then(addGeoJson);
+        });
+      }
+
+      function showDay(evt) {
+        var day = $(this).val();
+        var segmentsForDay = days[day];
+        var bounds, layerBounds;
+        for ( s in segments ) {
+          if ( $.inArray(s, segmentsForDay) > -1 ) {
+            map.addLayer(segments[s]);
+            layerBounds = segments[s].getBounds();
+            bounds = bounds ? bounds.extend(layerBounds) : layerBounds;
+          } else {
+            map.removeLayer(segments[s]);
+          }
+        }
+        map.fitBounds(bounds);
+      }
+
+      function addGeoJson(data) {
+        var geo = JSON.parse(data);
+        totalUniqueMileage += geo.features[0].properties.distance;
+        var ride = L.geoJson(geo, {
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(feature.properties.name + ":  " + 
+              feature.properties.distance + " miles");
+          },
+          style: { color: "#00BEFF" }
+        });
+
+        // keep a reference to each layer
+        var segmentName = this.url.replace(/^..\//, "");
+        segments[segmentName] = ride;
+
+        // add all segments by default
+        ride.addTo(map);
+
+        // highlight features when clicked
+        ride.on({
+          click: function(e) {
+            // remove previous selection
+            if ( selected ) {
+              ride.resetStyle(selected);
+            }
+            selected = e.target;
+
+            selected.setStyle({
+              color: "#FFA500"
+            });
+
+            if (!L.Browser.ie && !L.Browser.opera) {
+              selected.bringToFront();
+            }
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
