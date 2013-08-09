@@ -38,17 +38,25 @@
         <option value="three">July 30, 2013</option>
         <option value="four">July 31, 2013</option>
       </select>
+      <br>
+      <span id="mileage-label">Mileage:  </span>
+      <span id="mileage">--</span>
 
     <script>
-      // globals for map and selected feature
-      var map, selected, totalUniqueMileage = 0;
+      // one global for map, selected feature, etc.
+      var app = {};
+      app.totalUniqueMileage = 0;
 
       // keep track of routes by day once they're retrieved
-      var days = {}, segments = {}; 
+      app.days = {}; 
+      app.segments = {}; 
+
+      app.loadedSegments = 0; 
+      app.totalSegments = 0;
 
       // create a map, add a basemap
-      map = L.map("map", { maxZoom: 13 }).setView([36.91476, -118.37769], 6);
-      L.esri.basemapLayer("Oceans").addTo(map);
+      app.map = L.map("map", { maxZoom: 13 }).setView([36.91476, -118.37769], 6);
+      L.esri.basemapLayer("Oceans").addTo(app.map);
 
       // get routes
       $.ajax("../routes.json").then(showAll);
@@ -57,7 +65,7 @@
       $("#day").change(showDay);
 
       function showAll(routes) {
-        days = routes.tahoe;
+        app.days = routes.tahoe;
         // find unique segments so each line is only added once
         var uniques = [];
         for ( day in routes.tahoe ) {
@@ -68,7 +76,8 @@
           });
         }
         // console.log("uniques", uniques);
-        days.all = uniques;
+        app.days.all = uniques;
+        app.totalSegments = uniques.length;
         // get and add each segment to the map
         $.each(uniques, function(idx, segment) {
           $.ajax("../" + segment).then(addGeoJson);
@@ -77,23 +86,31 @@
 
       function showDay(evt) {
         var day = $(this).val();
-        var segmentsForDay = days[day];
+        var segmentsForDay = app.days[day];
         var bounds, layerBounds;
-        for ( s in segments ) {
+        var mileage = 0;
+        for ( s in app.segments ) {
           if ( $.inArray(s, segmentsForDay) > -1 ) {
-            map.addLayer(segments[s]);
-            layerBounds = segments[s].getBounds();
+            app.map.addLayer(app.segments[s]);
+            layerBounds = app.segments[s].getBounds();
             bounds = bounds ? bounds.extend(layerBounds) : layerBounds;
+            mileage = mileage + app.segments[s].mileage;
           } else {
-            map.removeLayer(segments[s]);
+            app.map.removeLayer(app.segments[s]);
           }
         }
-        map.fitBounds(bounds);
+        app.map.fitBounds(bounds);
+        if ( day === "all" ) {
+          $("#mileage").html(app.segments.totalMileage);
+        } else {
+          $("#mileage").html(mileage.toFixed(1));
+        }
       }
 
       function addGeoJson(data) {
         var geo = JSON.parse(data);
-        totalUniqueMileage += geo.features[0].properties.distance;
+        app.loadedSegments = app.loadedSegments + 1;
+        app.totalUniqueMileage += geo.features[0].properties.distance;
         var ride = L.geoJson(geo, {
           onEachFeature: function (feature, layer) {
             layer.bindPopup(feature.properties.name + ":  " + 
@@ -104,10 +121,12 @@
 
         // keep a reference to each layer
         var segmentName = this.url.replace(/^..\//, "");
-        segments[segmentName] = ride;
+        app.segments[segmentName] = ride;
+        // keep track of mileage for each segment
+        app.segments[segmentName].mileage = geo.features[0].properties.distance;
 
         // add all segments by default
-        ride.addTo(map);
+        ride.addTo(app.map);
 
         // highlight features when clicked
         ride.on({
@@ -127,6 +146,26 @@
             }
           }
         });
+
+        checkLoadCount();
+      }
+
+      function checkLoadCount() {
+        if ( app.loadedSegments === app.totalSegments ) {
+          // calculate total ride mileage, not just unique miles
+          var totalMileage = 0;
+          for ( day in app.days ) {
+            if ( day !== "all" ) {
+              var d = app.days[day];
+              for ( var i = 0, il = d.length; i < il; i++ ) {
+                var s = app.segments[d[i]];
+                totalMileage += s.mileage;
+              }
+            }
+          }
+          app.segments.totalMileage = totalMileage.toFixed(1)
+          $("#mileage").html(app.segments.totalMileage);
+        }
       }
     </script>
   </body>
