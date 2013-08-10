@@ -78,7 +78,10 @@
       app.totalSegments = 0;
 
       // create a map, add a basemap
-      app.map = L.map("map", { maxZoom: 13 }).setView([36.91476, -118.37769], 6);
+      app.map = L.map("map", { 
+        maxZoom: 13,
+        zoomControl: false 
+      }).setView([36.91476, -118.37769], 6);
       L.esri.basemapLayer("Oceans").addTo(app.map);
 
       // get routes
