@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>So Cal to Tahoe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../lib/leaflet/leaflet.css">
+    <link rel="stylesheet" href="css/demo.css">
+    <style>
+      #controls {
+        background: #fff;
+        box-sizing: border-box;
+        box-shadow: 0 1px 7px rgba(0,0,0,0.65);
+        border-radius: 3px;
+        height: auto;
+        margin: 10px;
+        padding: 0 10px 10px 10px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 15em;
+        z-index: 5;
+      }
+
+      label, #mileage-label {
+        display: inline-block;
+        padding: 0.5em 0 0 0;
+        text-align: right;
+        width: 6em;
+      }
+
+      input[type=checkbox] {
+        margin-bottom: 0;
+      }
+
+      .leaflet-popup-content img {
+        width: 300px;
+        height: 200px;
+      }
+    </style>
+    <!--[if lte IE 8]><link rel="stylesheet" href="leaflet/leaflet.ie.css" /><![endif]-->
+    <script src="../lib/leaflet/leaflet-src.js"></script>
+    <script src="../lib/esri-leaflet.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="controls">
+      <span id="mileage-label">Mileage:  </span>
+      <span id="mileage">--</span>
+      <br>
+      <label for="day">Select Day:</label>
+      <select id="day">
+        <option value="all" selected=true>All</option>
+        <option value="zero">July 27, 2013</option>
+        <option value="one">July 28, 2013</option>
+        <option value="two">July 29, 2013</option>
+        <option value="three">July 30, 2013</option>
+        <option value="four">July 31, 2013</option>
+      </select>
+      <br>
+      <label for="pictures">Pictures:  </label>
+      <input type="checkbox" id="pictures" disabled=true>
+
+    <script>
+      // one global for map, selected feature, etc.
+      var app = {};
+      app.selected;
+      app.totalUniqueMileage = 0;
+
+      // keep track of routes by day once they're retrieved
+      app.days = {}; 
+      app.segments = {}; 
+
+      // markers for pictures
+      app.pictures;
+
+      app.loadedSegments = 0; 
+      app.totalSegments = 0;
+
+      // create a map, add a basemap
+      app.map = L.map("map", { maxZoom: 13 }).setView([36.91476, -118.37769], 6);
+      L.esri.basemapLayer("Oceans").addTo(app.map);
+
+      // get routes
+      $.ajax("../routes.json").then(showAll);
+
+      // get pic paths and lat, lngs
+      $.ajax("../pic-info.json").then(showPics);
+
+      // event listener to show routes ridden each day
+      $("#day").change(showDay);
+
+      function showAll(routes) {
+        app.days = routes.tahoe;
+        // find unique segments so each line is only added once
+        var uniques = [];
+        for ( day in routes.tahoe ) {
+          $.each(routes.tahoe[day], function(idx, segment) {
+            if ( $.inArray(segment, uniques) === -1 ) {
+              uniques.push(segment);
+            }
+          });
+        }
+        // console.log("uniques", uniques);
+        app.days.all = uniques;
+        app.totalSegments = uniques.length;
+        // get and add each segment to the map
+        $.each(uniques, function(idx, segment) {
+          $.ajax("../" + segment).then(addGeoJson);
+        });
+      }
+
+      function showPics(pics) {
+        // console.log("pics", pics);
+        var pictures = [];
+        for ( pic in pics ) {
+          var ll = [pics[pic].lat, pics[pic].lng];
+          var marker = L.marker(ll); //.addTo(app.map);
+          var picPath = "../pics/" + pic;
+          marker.bindPopup("<a href=\"" + picPath + "\" target=\"_blank\">" +
+            "<img src=\"" + picPath + "\"></a>");
+          pictures.push(marker);
+        }
+        app.pics = new L.FeatureGroup(pictures);
+        var picToggle = $("#pictures");
+        picToggle.attr("disabled", false);
+        picToggle.change(function(evt) {
+          // console.log("pic toggle", evt, );
+          if ( $(this).is(":checked") ) {
+            app.map.addLayer(app.pics);
+          } else {
+            app.map.removeLayer(app.pics);
+          }
+        });
+      }
+
+      function showDay(evt) {
+        var day = $(this).val();
+        var segmentsForDay = app.days[day];
+        var bounds, layerBounds;
+        var mileage = 0;
+        for ( s in app.segments ) {
+          if ( $.inArray(s, segmentsForDay) > -1 ) {
+            app.map.addLayer(app.segments[s]);
+            layerBounds = app.segments[s].getBounds();
+            bounds = bounds ? bounds.extend(layerBounds) : layerBounds;
+            mileage = mileage + app.segments[s].mileage;
+          } else {
+            app.map.removeLayer(app.segments[s]);
+          }
+        }
+        app.map.fitBounds(bounds);
+        if ( day === "all" ) {
+          $("#mileage").html(app.segments.totalMileage);
+        } else {
+          $("#mileage").html(mileage.toFixed(1));
+        }
+      }
+
+      function addGeoJson(data) {
+        var geo = JSON.parse(data);
+        app.loadedSegments = app.loadedSegments + 1;
+        app.totalUniqueMileage += geo.features[0].properties.distance;
+        var ride = L.geoJson(geo, {
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(feature.properties.name + ":  " + 
+              feature.properties.distance + " miles");
+          },
+          style: { color: "#00BEFF" }
+        });
+
+        // keep a reference to each layer
+        var segmentName = this.url.replace(/^..\//, "");
+        app.segments[segmentName] = ride;
+        // keep track of mileage for each segment
+        app.segments[segmentName].mileage = geo.features[0].properties.distance;
+
+        // add all segments by default
+        ride.addTo(app.map);
+
+        // highlight features when clicked
+        ride.on({
+          click: function(e) {
+            // remove previous selection
+            if ( app.selected ) {
+              ride.resetStyle(app.selected);
+            }
+            app.selected = e.target;
+
+            app.selected.setStyle({
+              color: "#FFA500"
+            });
+
+            if (!L.Browser.ie && !L.Browser.opera) {
+              app.selected.bringToFront();
+            }
+          }
+        });
+
+        checkLoadCount();
+      }
+
+      function checkLoadCount() {
+        if ( app.loadedSegments === app.totalSegments ) {
+          // calculate total ride mileage, not just unique miles
+          var totalMileage = 0;
+          for ( day in app.days ) {
+            if ( day !== "all" ) {
+              var d = app.days[day];
+              for ( var i = 0, il = d.length; i < il; i++ ) {
+                var s = app.segments[d[i]];
+                totalMileage += s.mileage;
+              }
+            }
+          }
+          app.segments.totalMileage = totalMileage.toFixed(1)
+          $("#mileage").html(app.segments.totalMileage);
+        }
+      }
+    </script>
+  </body>
+</html>
