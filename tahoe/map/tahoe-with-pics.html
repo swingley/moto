@@ -118,6 +118,7 @@
           var marker = L.marker(ll); //.addTo(app.map);
           var picPath = "../pics/" + pic;
           marker.bindPopup("<a href=\"" + picPath + "\" target=\"_blank\">" +
+            // "<img src=\"" + picPath + "\" title=\"" + picPath + "\"></a>");
             "<img src=\"" + picPath + "\"></a>");
           pictures.push(marker);
         }
