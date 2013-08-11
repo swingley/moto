@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>So Cal to Tahoe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../lib/leaflet/leaflet.css">
+    <link rel="stylesheet" href="css/demo.css">
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      #controls {
+        background: #fff;
+        box-sizing: border-box;
+        box-shadow: 0 1px 7px rgba(0,0,0,0.65);
+        border-radius: 4px;
+        height: auto;
+        margin: 10px;
+        padding: 0 10px 10px 10px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 15em;
+        z-index: 5;
+      }
+
+      label, #mileage-label {
+        display: inline-block;
+        padding: 0.5em 0 0 0;
+        text-align: right;
+        width: 6em;
+      }
+
+      input[type=checkbox] {
+        margin-bottom: 0;
+      }
+
+      .leaflet-popup-content img {
+        width: 300px;
+        height: 200px;
+      }
+
+      /* default to map on top, info on bottom */
+      #mapContainer, #infoContainer {
+        width: 100%;
+      }
+      #infoContainer {
+        height: 40%;
+        overflow: auto;
+        overflow-y: hidden;
+        padding: 0.5em;
+        text-align: center;
+        -webkit-overflow-scrolling: touch;
+      }
+      #infoContainer div.photo {
+        display: inline-block;
+        height: 180px;
+        margin: 0 auto;
+        width: 180px;
+      }
+      #info {
+        width: 9800px; /* total width for all photos */
+      }
+      #photoLabel {
+        display: none;
+      }
+      #mapContainer {
+        height: 60%;
+        position: relative;
+      }
+
+      /* on wide screen (desktop/laptop...phone in landscape), 
+         put the map on the left and info on the right */
+      @media screen and (min-width: 480px) {
+        #mapContainer, #infoContainer {
+          display: inline-block;
+        }
+        #infoContainer {
+          height: 99%;
+          width: 30%;
+          margin: 0;
+          overflow: hidden;
+          padding: 0;
+          text-align: center;
+        }
+        #infoContainer div.photo {
+          display: block;
+        }
+        #info {
+          height: 100%;
+          width: 100%;
+          overflow-y: auto;
+        }
+        #photoLabel {
+          display: block;
+          padding: 0.5em 0 0 0;
+        }
+        #mapContainer {
+          float: left;
+          height: 100%;
+          width: 70%;
+        }
+        #map {
+          height: 100%;
+        }
+      }
+    </style>
+    <!--[if lte IE 8]><link rel="stylesheet" href="leaflet/leaflet.ie.css" /><![endif]-->
+    <script src="../lib/leaflet/leaflet-src.js"></script>
+    <script src="../lib/esri-leaflet.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  </head>
+  <body>
+    <div id="mapContainer">
+      <div id="map"></div>
+      <div id="controls">
+        <span id="mileage-label">Mileage:  </span>
+        <span id="mileage">--</span>
+        <br>
+        <label for="day">Select Day:</label>
+        <select id="day">
+          <option value="all" selected=true>All</option>
+          <option value="zero">July 27, 2013</option>
+          <option value="one">July 28, 2013</option>
+          <option value="two">July 29, 2013</option>
+          <option value="three">July 30, 2013</option>
+          <option value="four">July 31, 2013</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="infoContainer">
+      <div id="info">
+        <div id="photoLabel">Trip Photos:</div>
+
+<div class="photo" data-photo="IMG_2229" style="background:url(../pics/thumbnails/IMG_2229.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2233" style="background:url(../pics/thumbnails/IMG_2233.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2237" style="background:url(../pics/thumbnails/IMG_2237.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2238" style="background:url(../pics/thumbnails/IMG_2238.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2239" style="background:url(../pics/thumbnails/IMG_2239.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2241" style="background:url(../pics/thumbnails/IMG_2241.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2242" style="background:url(../pics/thumbnails/IMG_2242.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2243" style="background:url(../pics/thumbnails/IMG_2243.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2244" style="background:url(../pics/thumbnails/IMG_2244.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2245" style="background:url(../pics/thumbnails/IMG_2245.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2246" style="background:url(../pics/thumbnails/IMG_2246.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2248" style="background:url(../pics/thumbnails/IMG_2248.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2250" style="background:url(../pics/thumbnails/IMG_2250.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2252" style="background:url(../pics/thumbnails/IMG_2252.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2253" style="background:url(../pics/thumbnails/IMG_2253.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2254" style="background:url(../pics/thumbnails/IMG_2254.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2255" style="background:url(../pics/thumbnails/IMG_2255.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2256" style="background:url(../pics/thumbnails/IMG_2256.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2257" style="background:url(../pics/thumbnails/IMG_2257.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2258" style="background:url(../pics/thumbnails/IMG_2258.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2259" style="background:url(../pics/thumbnails/IMG_2259.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2260" style="background:url(../pics/thumbnails/IMG_2260.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2262" style="background:url(../pics/thumbnails/IMG_2262.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2263" style="background:url(../pics/thumbnails/IMG_2263.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2264" style="background:url(../pics/thumbnails/IMG_2264.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2265" style="background:url(../pics/thumbnails/IMG_2265.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2266" style="background:url(../pics/thumbnails/IMG_2266.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2267" style="background:url(../pics/thumbnails/IMG_2267.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2268" style="background:url(../pics/thumbnails/IMG_2268.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2269" style="background:url(../pics/thumbnails/IMG_2269.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2270" style="background:url(../pics/thumbnails/IMG_2270.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2271" style="background:url(../pics/thumbnails/IMG_2271.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2276" style="background:url(../pics/thumbnails/IMG_2276.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2284" style="background:url(../pics/thumbnails/IMG_2284.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2285" style="background:url(../pics/thumbnails/IMG_2285.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2287" style="background:url(../pics/thumbnails/IMG_2287.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2288" style="background:url(../pics/thumbnails/IMG_2288.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2293" style="background:url(../pics/thumbnails/IMG_2293.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2294" style="background:url(../pics/thumbnails/IMG_2294.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2295" style="background:url(../pics/thumbnails/IMG_2295.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2297" style="background:url(../pics/thumbnails/IMG_2297.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2300" style="background:url(../pics/thumbnails/IMG_2300.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2302" style="background:url(../pics/thumbnails/IMG_2302.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2303" style="background:url(../pics/thumbnails/IMG_2303.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2307" style="background:url(../pics/thumbnails/IMG_2307.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2308" style="background:url(../pics/thumbnails/IMG_2308.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2315" style="background:url(../pics/thumbnails/IMG_2315.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2316" style="background:url(../pics/thumbnails/IMG_2316.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2317" style="background:url(../pics/thumbnails/IMG_2317.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2319" style="background:url(../pics/thumbnails/IMG_2319.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2321" style="background:url(../pics/thumbnails/IMG_2321.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2323" style="background:url(../pics/thumbnails/IMG_2323.jpg) no-repeat center center"></div>
+<div class="photo" data-photo="IMG_2324" style="background:url(../pics/thumbnails/IMG_2324.jpg) no-repeat center center"></div> 
+
+      </div>
+    </div>
+
+    <script>
+      // one global for map, selected feature, etc.
+      var app = {};
+      app.selected;
+      app.totalUniqueMileage = 0;
+
+      // keep track of routes by day once they're retrieved
+      app.days = {}; 
+      app.segments = {}; 
+
+      // markers for pictures
+      app.pics;
+
+      app.loadedSegments = 0; 
+      app.totalSegments = 0;
+
+      // create a map, add a basemap
+      app.map = L.map("map", { 
+        maxZoom: 13,
+        zoomControl: false 
+      }).setView([36.91476, -118.37769], 6);
+      L.esri.basemapLayer("Oceans").addTo(app.map);
+
+      // get routes
+      $.ajax("../routes.json").then(showAll);
+
+      // get pic paths and lat, lngs
+      $.ajax("../pic-info.json").then(buildMarkers);
+
+      // event listener to show routes ridden each day
+      $("#day").change(showDay);
+
+      function showAll(routes) {
+        app.days = routes.tahoe;
+        // find unique segments so each line is only added once
+        var uniques = [];
+        for ( day in routes.tahoe ) {
+          $.each(routes.tahoe[day], function(idx, segment) {
+            if ( $.inArray(segment, uniques) === -1 ) {
+              uniques.push(segment);
+            }
+          });
+        }
+        // console.log("uniques", uniques);
+        app.days.all = uniques;
+        app.totalSegments = uniques.length;
+        // get and add each segment to the map
+        $.each(uniques, function(idx, segment) {
+          $.ajax("../" + segment).then(addGeoJson);
+        });
+      }
+
+      function buildMarkers(pics) {
+        // console.log("pics", pics);
+        app.pics = {};
+        for ( pic in pics ) {
+          var ll = [pics[pic].lat, pics[pic].lng];
+          var marker = L.marker(ll); //.addTo(app.map);
+          var picPath = "../pics/" + pic;
+          marker.bindPopup("<a href=\"" + picPath + "\" target=\"_blank\">" +
+            "<img src=\"" + picPath + "\"></a>");
+          app.pics[pic.replace(".jpg", "")] = marker;
+        }
+        addPicClickListener();
+      }
+
+      function showDay(evt) {
+        var day = $(this).val();
+        var segmentsForDay = app.days[day];
+        var bounds, layerBounds;
+        var mileage = 0;
+        for ( s in app.segments ) {
+          if ( $.inArray(s, segmentsForDay) > -1 ) {
+            app.map.addLayer(app.segments[s]);
+            layerBounds = app.segments[s].getBounds();
+            bounds = bounds ? bounds.extend(layerBounds) : layerBounds;
+            mileage = mileage + app.segments[s].mileage;
+          } else {
+            app.map.removeLayer(app.segments[s]);
+          }
+        }
+        app.map.fitBounds(bounds);
+        if ( day === "all" ) {
+          $("#mileage").html(app.segments.totalMileage);
+        } else {
+          $("#mileage").html(mileage.toFixed(1));
+        }
+      }
+
+      function addPicClickListener() {
+        $("#info").on("click", function(e) {
+          var target = $(e.target);
+          if ( target.hasClass("photo") ) {
+            var photoName = target.data("photo");
+            // console.log("clicked a photo", photoName);
+            if ( app.pics.hasOwnProperty(photoName) ) {
+              console.log("marker", app.pics[photoName]);
+              if ( app.pics.selected ) {
+                app.map.removeLayer(app.pics.selected);
+              }
+              app.pics.selected = app.pics[photoName];
+              app.map.addLayer(app.pics.selected);
+              app.map.panTo(app.pics.selected.getLatLng());
+            } else {
+              alert("Sorry, not location info for that photo.");
+            }
+          }
+        });
+      }
+
+      function addGeoJson(data) {
+        var geo = JSON.parse(data);
+        app.loadedSegments = app.loadedSegments + 1;
+        app.totalUniqueMileage += geo.features[0].properties.distance;
+        var ride = L.geoJson(geo, {
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(feature.properties.name + ":  " + 
+              feature.properties.distance + " miles");
+          },
+          style: { color: "#00BEFF" }
+        });
+
+        // keep a reference to each layer
+        var segmentName = this.url.replace(/^..\//, "");
+        app.segments[segmentName] = ride;
+        // keep track of mileage for each segment
+        app.segments[segmentName].mileage = geo.features[0].properties.distance;
+
+        // add all segments by default
+        ride.addTo(app.map);
+
+        // highlight features when clicked
+        ride.on({
+          click: function(e) {
+            // remove previous selection
+            if ( app.selected ) {
+              ride.resetStyle(app.selected);
+            }
+            app.selected = e.target;
+
+            app.selected.setStyle({
+              color: "#FFA500"
+            });
+
+            if (!L.Browser.ie && !L.Browser.opera) {
+              app.selected.bringToFront();
+            }
+          }
+        });
+
+        checkLoadCount();
+      }
+
+      function checkLoadCount() {
+        if ( app.loadedSegments === app.totalSegments ) {
+          // calculate total ride mileage, not just unique miles
+          var totalMileage = 0;
+          for ( day in app.days ) {
+            if ( day !== "all" ) {
+              var d = app.days[day];
+              for ( var i = 0, il = d.length; i < il; i++ ) {
+                var s = app.segments[d[i]];
+                totalMileage += s.mileage;
+              }
+            }
+          }
+          app.segments.totalMileage = totalMileage.toFixed(1)
+          $("#mileage").html(app.segments.totalMileage);
+        }
+      }
+    </script>
+  </body>
+</html>
