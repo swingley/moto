@@ -3,4 +3,4 @@ moto
 
 Various motorcycle rides.
 
-[Tahoe](http://swingley.github.io/moto/tahoe/map/tahoe.html)
+[Tahoe](http://swingley.github.io/moto/tahoe/map/)
