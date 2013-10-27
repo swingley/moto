@@ -1125,7 +1125,8 @@
       },
       "properties": {
         "name": "Oceanside, CA to El Centro, CA",
-        "id": 0
+        "distance": 138.7,
+        "id": 1 
       }
     }
   ]

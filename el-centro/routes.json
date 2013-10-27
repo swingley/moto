@@ -1,0 +1,9 @@
+{
+  "centro": {
+    "zero": [
+      "01-laguna-beach-to-oceanside.geojson",
+      "02-oceanside-to-el-centro.geojson",
+      "03-el-centro-to-oceanside-via-anza-borrego.geojson"
+    ]
+  }
+}
