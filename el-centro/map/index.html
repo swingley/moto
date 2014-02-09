@@ -40,7 +40,7 @@
       }
 
       function addGeoJson(data) {
-        var geo = JSON.parse(data);
+        var geo = (typeof data === "string") ? JSON.parse(data) : data;
         totalUniqueMileage += geo.features[0].properties.distance;
         var ride = L.geoJson(geo, {
           onEachFeature: function (feature, layer) {
