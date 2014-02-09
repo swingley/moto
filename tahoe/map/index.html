@@ -47,6 +47,7 @@
         width: 100%;
       }
       #infoContainer {
+        background: #fff;
         height: 40%;
         overflow: auto;
         overflow-y: hidden;
@@ -79,12 +80,15 @@
           display: inline-block;
         }
         #infoContainer {
+          background: transparent;
           height: 99%;
-          width: 30%;
           margin: 0;
           overflow: hidden;
           padding: 0;
+          position: absolute;
+          right: 0;
           text-align: center;
+          width: 30%;
         }
         #infoContainer div.photo {
           display: block;
@@ -96,12 +100,13 @@
         }
         #photoLabel {
           display: block;
+          font-size: 1.4em;
           padding: 0.5em 0 0 0;
         }
         #mapContainer {
           float: left;
           height: 100%;
-          width: 70%;
+          width: 100%;
         }
         #map {
           height: 100%;
@@ -224,6 +229,12 @@
 
       // event listener to show routes ridden each day
       $("#day").change(showDay);
+
+      // move logo and attribution to lower-left instead of lower-right
+      // so that it doens't get in the way of the pictures
+      $(".leaflet-bottom.leaflet-left").remove();
+      $(".leaflet-bottom.leaflet-right").removeClass("leaflet-right").addClass("leaflet-left");
+      $(".leaflet-control-attribution img").css({ "left": "2px", "right": "" });
 
       function showAll(routes) {
         app.days = routes.tahoe;
