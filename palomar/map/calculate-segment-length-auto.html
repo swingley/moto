@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Segment Lengths</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../../tahoe/lib/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="../../tahoe/map/css/demo.css" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="leaflet/leaflet.ie.css" /><![endif]-->
+    <style>
+      #panel {
+        background-color: #fff;
+        border: 1px solid #999;
+        height: 400px;
+        overflow: auto;
+        padding: 5px;
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        width: 425px;
+        z-index: 5;
+      }
+    </style>
+    <script src="../../tahoe/lib/leaflet/leaflet-src.js"></script>
+    <script src="../../tahoe/lib/esri-leaflet.min.js"></script>
+    <script src="../../tahoe/lib/jsonConverters.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  </head>
+  <body>
+    <div id="panel">
+      <table>
+        <tbody id="lengths"></tbody>
+      </table>
+    </div>
+    <div id="map"></div>
+    <script>
+      // create a map, add a basemap
+      var map = L.map("map").setView([34.1800, -116.73523], 7);
+      L.esri.basemapLayer("Gray").addTo(map);
+
+      // geojson -> esri json converter
+      var converter = new geoJsonConverter();
+
+      // add some geojson
+      $.ajax("../routes.json").then(showList);
+
+      var segmentName;
+
+      function showList(routes) {
+        // find unique segments so each line is only added once
+        var uniques = [];
+        for ( day in routes.palomar ) {
+          $.each(routes.palomar[day], function(idx, segment) {
+            if ( $.inArray(segment, uniques) === -1 ) {
+              uniques.push(segment);
+            }
+          });
+        }
+        // get and add each segment to the map
+        $.each(uniques, function(idx, segment) {
+          $.ajax("../" + segment, { async: false }).then(convert);
+        });
+      }
+
+      function convert(data) {
+        var geoJson = JSON.parse(data);
+        // console.log("geoJson", geoJson);
+        var esriJson = converter.toEsri(geoJson);
+        // console.log("esriJson", esriJson);
+        measure(esriJson);
+      }
+
+      function measure(esriJson) {
+        // endpoint for length calculations
+        var url = "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer/lengths";
+        // get the segments SR, should be 4326
+        var sr = esriJson.features[0].geometry.spatialReference.wkid;
+        // get the path
+        var line = JSON.stringify([{ paths: esriJson.features[0].geometry.paths }]);
+        // console.log(line);
+        console.log("measure--", esriJson);
+        segmentName = esriJson.features[0].attributes.name;
+        // use the arcgis server geometry service to calculate the length in miles
+        $.ajax(url, {
+          data: {
+            sr: sr,
+            polylines: line,
+            lengthUnit: 9035, // miles
+            calculationType: "preserveShape",
+            f: "json"
+          },
+          async: false
+        }).then(display);
+      }
+
+      function display(result) {
+        console.log("result", result);
+        result = JSON.parse(result);
+        document.getElementById("lengths").innerHTML += "<tr><td>" + segmentName + 
+          "</td><td>" + result.lengths[0].toFixed(1) + "</td></tr>";
+      }
+    </script>
+  </body>
+</html>

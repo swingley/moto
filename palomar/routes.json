@@ -1,0 +1,12 @@
+{
+  "palomar": {
+    "zero": [
+      "1-sd-escondido.geojson",
+      "2-escondido-to-lazy-h.geojson",
+      "3-lazy-h-to-palomar.geojson",
+      "4-palomar-to-ca-79.geojson",
+      "5-ca-79-to-poway-i15.geojson",
+      "6-poway-i15-to-golden-hill.geojson"
+    ]
+  }
+}

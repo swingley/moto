@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Laguna Beach to El Centro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../../tahoe/lib/leaflet/leaflet.css">
+    <link rel="stylesheet" href="../../tahoe/map/css/demo.css">
+    <!--[if lte IE 8]><link rel="stylesheet" href="leaflet/leaflet.ie.css" /><![endif]-->
+    <script src="../../tahoe/lib/leaflet/leaflet-src.js"></script>
+    <script src="../../tahoe/lib/esri-leaflet.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      // globals for map and selected feature
+      var map, selected, totalUniqueMileage = 0;
+
+      // create a map, add a basemap
+      map = L.map("map", { maxZoom: 13 }).setView([33.06, -116.70], 8);
+      L.esri.basemapLayer("Oceans").addTo(map);
+
+      // get routes
+      $.ajax("../routes.json").then(showAll);
+
+      function showAll(routes) {
+        // find unique segments so each line is only added once
+        var uniques = [];
+        for ( day in routes.centro) {
+          $.each(routes.centro[day], function(idx, segment) {
+            if ( $.inArray(segment, uniques) === -1 ) {
+              uniques.push(segment);
+            }
+          });
+        }
+        // get and add each segment to the map
+        $.each(uniques, function(idx, segment) {
+          $.ajax("../" + segment).then(addGeoJson);
+        });
+      }
+
+      function addGeoJson(data) {
+        var geo = JSON.parse(data);
+        totalUniqueMileage += geo.features[0].properties.distance;
+        var ride = L.geoJson(geo, {
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(feature.properties.name + ":  " + 
+              feature.properties.distance + " miles");
+          },
+          style: { color: "#00BEFF" }
+        }).addTo(map);
+
+        // highlight features when clicked
+        ride.on({
+          click: function(e) {
+            // remove previous selection
+            if ( selected ) {
+              ride.resetStyle(selected);
+            }
+            selected = e.target;
+
+            selected.setStyle({
+              color: "#FFA500"
+            });
+
+            if (!L.Browser.ie && !L.Browser.opera) {
+              selected.bringToFront();
+            }
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
